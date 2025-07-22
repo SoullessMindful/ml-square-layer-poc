@@ -1,9 +1,10 @@
-import tensorflow as tf
+import torch
+import torch.nn as nn
 
 
-class SquareLayer(tf.keras.layers.Layer):
+class SquareLayer(nn.Module):
     def __init__(self):
         super(SquareLayer, self).__init__()
 
-    def call(self, inputs: tf.Tensor):
-        return tf.concat([inputs, inputs * inputs], -1)
+    def forward(self, inputs: torch.Tensor) -> torch.Tensor:
+        return torch.cat([inputs, inputs**2], dim=-1)
