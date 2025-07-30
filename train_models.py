@@ -1,15 +1,17 @@
 import json
-import sys
+import argparse
 from typing import Final
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from generate_data import DEFAULT_DATA_PATH
 from models import BaseModel, Model
 
-DEFAULT_EPOCHS: Final = 500
-DEFAULT_BATCH_SIZE: Final = 256
+DEFAULT_EPOCHS: Final = 1000
+DEFAULT_BATCH_SIZE: Final = 32
 
-def train_model(model: Model, epochs: int, batch_size: int):
+
+def train_model(model: Model, X, y, epochs: int, batch_size: int):
     loss_function: Final = nn.MSELoss()
     optimizer: Final = optim.Adam(model.parameters(), lr=1e-3)
 
@@ -34,9 +36,27 @@ def train_model(model: Model, epochs: int, batch_size: int):
 
 
 if __name__ == "__main__":
-    DATA_PATH = "./data/data.json" if (len(sys.argv) <= 1) else sys.argv[1]
+    parser = argparse.ArgumentParser(description="Train models on generated data.")
+    parser.add_argument(
+        "-e", "--epochs", type=int, default=DEFAULT_EPOCHS, help="Number of epochs"
+    )
+    parser.add_argument(
+        "-b", "--batch_size", type=int, default=DEFAULT_BATCH_SIZE, help="Batch size"
+    )
+    parser.add_argument(
+        "-d",
+        "--data_path",
+        type=str,
+        default=DEFAULT_DATA_PATH,
+        help="Path to data file",
+    )
+    args = parser.parse_args()
 
-    with open(DATA_PATH, "r", encoding="utf-8") as file:
+    data_path: Final[str] = args.data_path
+    batch_size: Final[int] = args.batch_size
+    epochs: Final[int] = args.epochs
+
+    with open(data_path, "r", encoding="utf-8") as file:
         data = json.load(file)
         inputs = data["inputs"]
         outputs = data["outputs"]
@@ -44,5 +64,9 @@ if __name__ == "__main__":
     X = torch.tensor(inputs, dtype=torch.float32)
     y = torch.tensor(outputs, dtype=torch.float32)
 
+    print(f"Training data: {data_path} {X.shape} {y.shape}")
+    print(f"Batch size: {batch_size}")
+    print(f"Epochs: {epochs}")
+
     base_model = BaseModel()
-    train_model(base_model, DEFAULT_EPOCHS, DEFAULT_BATCH_SIZE)
+    train_model(base_model, X, y, epochs, batch_size)

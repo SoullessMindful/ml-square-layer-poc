@@ -7,6 +7,7 @@ from typing import Final
 
 VARIABLE_COUNT: Final = 10
 INPUTS_COUNT: Final = 10000
+DEFAULT_DATA_PATH: Final = "./data/data.json"
 
 
 def generate_data():
