@@ -11,7 +11,7 @@ DEFAULT_EPOCHS: Final = 1000
 DEFAULT_BATCH_SIZE: Final = 32
 
 
-def train_model(model: Model, X, y, epochs: int, batch_size: int):
+def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
     loss_function: Final = nn.MSELoss()
     optimizer: Final = optim.Adam(model.parameters(), lr=1e-3)
 
@@ -32,7 +32,10 @@ def train_model(model: Model, X, y, epochs: int, batch_size: int):
             epoch_loss += loss.item() * batch_x.size(0)
 
         avg_loss = epoch_loss / X.size(0)
-        print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.6f}")
+
+        validation_outputs = model(X_val)
+        validation_loss = loss_function(validation_outputs, y_val).item()
+        print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.6f}, Validation Loss: {validation_loss:.6f}")
 
 
 if __name__ == "__main__":
@@ -60,13 +63,17 @@ if __name__ == "__main__":
         data = json.load(file)
         inputs = data["inputs"]
         outputs = data["outputs"]
+        validation_inputs = data["validation_inputs"]
+        validation_outputs = data["validation_outputs"]
 
     X = torch.tensor(inputs, dtype=torch.float32)
     y = torch.tensor(outputs, dtype=torch.float32)
+    X_val = torch.tensor(validation_inputs, dtype=torch.float32)
+    y_val = torch.tensor(validation_outputs, dtype=torch.float32)
 
     print(f"Training data: {data_path} {X.shape} {y.shape}")
     print(f"Batch size: {batch_size}")
     print(f"Epochs: {epochs}")
 
     base_model = BaseModel()
-    train_model(base_model, X, y, epochs, batch_size)
+    train_model(base_model, X, y, X_val, y_val, epochs, batch_size)
