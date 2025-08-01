@@ -2,11 +2,10 @@ import argparse
 from functools import reduce
 import json
 import random
-import sys
 from typing import Final
 
 
-VARIABLE_COUNT: Final = 2
+VARIABLE_COUNT: Final = 3
 DEFAULT_INPUTS_COUNT: Final = 10000
 DEFAULT_VALIDATION_INPUTS_COUNT: Final = 2000
 DEFAULT_DATA_PATH: Final = f"./data/data_{VARIABLE_COUNT}vars.json"

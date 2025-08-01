@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from generate_data import DEFAULT_DATA_PATH
-from models import BaseModel, Model
+from models import BaseModel, SquareModel, Model
 
 DEFAULT_EPOCHS: Final = 1000
 DEFAULT_BATCH_SIZE: Final = 32
@@ -13,7 +13,7 @@ DEFAULT_BATCH_SIZE: Final = 32
 
 def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
     loss_function: Final = nn.MSELoss()
-    optimizer: Final = optim.Adam(model.parameters(), lr=1e-3)
+    optimizer: Final = optim.Adam(model.parameters(), lr=1e-4)
 
     for epoch in range(epochs):
         permutation = torch.randperm(X.size(0))
@@ -35,7 +35,9 @@ def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
 
         validation_outputs = model(X_val)
         validation_loss = loss_function(validation_outputs, y_val).item()
-        print(f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.6f}, Validation Loss: {validation_loss:.6f}")
+        print(
+            f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.6f}, Validation Loss: {validation_loss:.6f}"
+        )
 
 
 if __name__ == "__main__":
@@ -75,5 +77,10 @@ if __name__ == "__main__":
     print(f"Batch size: {batch_size}")
     print(f"Epochs: {epochs}")
 
+    print("Training BaseModel...")
     base_model = BaseModel()
     train_model(base_model, X, y, X_val, y_val, epochs, batch_size)
+
+    # print("Training SquareModel...")
+    # square_model = SquareModel()
+    # train_model(square_model, X, y, X_val, y_val, epochs, batch_size)
