@@ -6,10 +6,10 @@ import sys
 from typing import Final
 
 
-VARIABLE_COUNT: Final = 10
+VARIABLE_COUNT: Final = 2
 DEFAULT_INPUTS_COUNT: Final = 10000
 DEFAULT_VALIDATION_INPUTS_COUNT: Final = 2000
-DEFAULT_DATA_PATH: Final = "./data/data.json"
+DEFAULT_DATA_PATH: Final = f"./data/data_{VARIABLE_COUNT}vars.json"
 
 
 def generate_data(
@@ -69,9 +69,13 @@ if __name__ == "__main__":
     )
 
     with open(data_path, "w", encoding="utf-8") as file:
-        json.dump({
-            "inputs": inputs,
-            "outputs": outputs,
-            "validation_inputs": validation_inputs,
-            "validation_outputs": validation_outputs,
-        }, file, indent=2)
+        json.dump(
+            {
+                "inputs": inputs,
+                "outputs": outputs,
+                "validation_inputs": validation_inputs,
+                "validation_outputs": validation_outputs,
+            },
+            file,
+            indent=2,
+        )
