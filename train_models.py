@@ -13,7 +13,12 @@ DEFAULT_BATCH_SIZE: Final = 32
 
 def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
     loss_function: Final = nn.MSELoss()
-    optimizer: Final = optim.Adam(model.parameters(), lr=1e-4)
+    optimizer: Final = optim.Adam(model.parameters(), lr=1e-2)
+    scheduler: Final = optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer,
+        factor=0.5,
+        patience=5,
+    )
 
     for epoch in range(epochs):
         permutation = torch.randperm(X.size(0))
@@ -32,6 +37,7 @@ def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
             epoch_loss += loss.item() * batch_x.size(0)
 
         avg_loss = epoch_loss / X.size(0)
+        scheduler.step(avg_loss)
 
         validation_outputs = model(X_val)
         validation_loss = loss_function(validation_outputs, y_val).item()
