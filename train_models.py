@@ -13,7 +13,7 @@ DEFAULT_BATCH_SIZE: Final = 32
 
 def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
     loss_function: Final = nn.MSELoss()
-    optimizer: Final = optim.Adam(model.parameters(), lr=1e-2)
+    optimizer: Final = optim.Adam(model.parameters(), lr=1e-2, weight_decay=1e-5)
     scheduler: Final = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer,
         factor=0.5,
