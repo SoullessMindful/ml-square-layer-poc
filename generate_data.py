@@ -5,7 +5,7 @@ import random
 from typing import Final
 
 
-VARIABLE_COUNT: Final = 3
+VARIABLE_COUNT: Final = 4
 DEFAULT_INPUTS_COUNT: Final = 10000
 DEFAULT_VALIDATION_INPUTS_COUNT: Final = 2000
 DEFAULT_DATA_PATH: Final = f"./data/data_{VARIABLE_COUNT}vars.json"

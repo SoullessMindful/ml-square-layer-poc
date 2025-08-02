@@ -18,7 +18,7 @@ def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
     scheduler: Final = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer,
         factor=0.5,
-        patience=5,
+        patience=7,
     )
     batch_scheduler: Final = Scheduler[float](
         lambda value, values: len(values) > 0 and value - min(values) > -1e-6,

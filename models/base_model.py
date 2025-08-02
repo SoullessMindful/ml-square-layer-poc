@@ -13,13 +13,15 @@ class BaseModel(nn.Module):
         # activation = nn.ReLU
 
         self.model = nn.Sequential(
-            nn.Linear(VARIABLE_COUNT, 32),
+            nn.Linear(VARIABLE_COUNT, 64),
             activation(),
-            nn.Linear(32, 32),
+            nn.Linear(64, 64),
             activation(),
-            nn.Linear(32, 64),
+            nn.Linear(64, 96),
             activation(),
-            nn.Linear(64, 1),
+            nn.Linear(96, 192),
+            activation(),
+            nn.Linear(192, 1),
         )
 
     def forward(self, x):
