@@ -28,6 +28,9 @@ def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
             indices = permutation[i : i + batch_size]
             batch_x, batch_y = X[indices], y[indices]
 
+            variable_permutation = torch.randperm(X.size(1))
+            batch_x = batch_x[:, variable_permutation]
+
             optimizer.zero_grad()
             outputs = model(batch_x)
             loss = loss_function(outputs, batch_y)
