@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 from generate_data import DEFAULT_DATA_PATH
 from models import BaseModel, SquareModel, Model
+from utils import Scheduler
 
 DEFAULT_EPOCHS: Final = 1000
 DEFAULT_BATCH_SIZE: Final = 32
@@ -18,6 +19,10 @@ def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
         optimizer,
         factor=0.5,
         patience=5,
+    )
+    batch_scheduler: Final = Scheduler[float](
+        lambda value, values: len(values) > 0 and value - min(values) > -1e-6,
+        cache=5,
     )
 
     for epoch in range(epochs):
@@ -41,6 +46,10 @@ def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
 
         avg_loss = epoch_loss / X.size(0)
         scheduler.step(avg_loss)
+        batch_scheduler.step(avg_loss)
+        if batch_scheduler.check():
+            batch_size //= 2
+            print(f"Batch size: {batch_size}")
 
         validation_outputs = model(X_val)
         validation_loss = loss_function(validation_outputs, y_val).item()
