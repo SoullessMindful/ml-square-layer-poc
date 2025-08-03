@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from generate_data import DEFAULT_DATA_PATH
+from losses.relative_mse_loss import RelativeMSELoss
 from models import BaseModel, SquareModel, Model
 from utils import Scheduler
 
@@ -13,7 +14,7 @@ DEFAULT_BATCH_SIZE: Final = 32
 
 
 def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
-    loss_function: Final = nn.MSELoss()
+    loss_function: Final = RelativeMSELoss()
     optimizer: Final = optim.Adam(model.parameters(), lr=1e-2, weight_decay=1e-5)
     scheduler: Final = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer,
