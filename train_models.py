@@ -25,6 +25,7 @@ def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
         lambda value, values: len(values) > 0 and value - min(values) > -1e-6,
         cache=5,
     )
+    nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
     for epoch in range(epochs):
         permutation = torch.randperm(X.size(0))
