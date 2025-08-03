@@ -97,7 +97,10 @@ if __name__ == "__main__":
 
     print("Training BaseModel...")
     base_model = BaseModel()
-    train_model(base_model, X, y, X_val, y_val, epochs, batch_size)
+    try:
+        train_model(base_model, X, y, X_val, y_val, epochs, batch_size)
+    except KeyboardInterrupt:
+        pass 
 
     # print("Training SquareModel...")
     # square_model = SquareModel()
