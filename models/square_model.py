@@ -1,14 +1,13 @@
 import torch.nn as nn
 
-from generate_data import VARIABLE_COUNT
 from layers import SquareLayer
 
 class SquareModel(nn.Module):
 
-    def __init__(self):
+    def __init__(self, variable_count: int):
         super(SquareModel, self).__init__()
 
-        self.linear1 = nn.Linear(VARIABLE_COUNT, 64)
+        self.linear1 = nn.Linear(variable_count, 64)
         self.activation1 = nn.SiLU()
         self.square_layer1 = SquareLayer()
         self.linear2 = nn.Linear(128, 128)

@@ -1,11 +1,8 @@
 import torch.nn as nn
 
-from generate_data import VARIABLE_COUNT
-
-
 class BaseModel(nn.Module):
 
-    def __init__(self):
+    def __init__(self, variable_count):
         super(BaseModel, self).__init__()
 
         activation = nn.Tanh
@@ -13,7 +10,7 @@ class BaseModel(nn.Module):
         # activation = nn.ReLU
 
         self.model = nn.Sequential(
-            nn.Linear(VARIABLE_COUNT, 32),
+            nn.Linear(variable_count, 32),
             activation(),
             nn.Linear(32, 32),
             activation(),

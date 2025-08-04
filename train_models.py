@@ -4,7 +4,7 @@ from typing import Final
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from generate_data import DEFAULT_DATA_PATH
+from generate_data import DEFAULT_VARIABLE_COUNT, default_data_path
 from losses.relative_mse_loss import RelativeMSELoss
 from models import BaseModel, SquareModel, Model
 from utils import Scheduler
@@ -63,6 +63,13 @@ def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train models on generated data.")
     parser.add_argument(
+        "-v",
+        "--variable_count",
+        type=int,
+        default=DEFAULT_VARIABLE_COUNT,
+        help="Amount of multiplied variables",
+    )
+    parser.add_argument(
         "-e", "--epochs", type=int, default=DEFAULT_EPOCHS, help="Number of epochs"
     )
     parser.add_argument(
@@ -72,12 +79,16 @@ if __name__ == "__main__":
         "-d",
         "--data_path",
         type=str,
-        default=DEFAULT_DATA_PATH,
+        default="",
         help="Path to data file",
     )
     args = parser.parse_args()
-
-    data_path: Final[str] = args.data_path
+    variable_count: Final[int] = args.variable_count
+    data_path: Final[str] = (
+        args.data_path
+        if args.data_path != ""
+        else default_data_path(variable_count)
+    )
     batch_size: Final[int] = args.batch_size
     epochs: Final[int] = args.epochs
 
@@ -98,7 +109,7 @@ if __name__ == "__main__":
     print(f"Epochs: {epochs}")
 
     print("Training BaseModel...")
-    base_model = BaseModel()
+    base_model = BaseModel(variable_count)
     try:
         train_model(base_model, X, y, X_val, y_val, epochs, batch_size)
     except KeyboardInterrupt:

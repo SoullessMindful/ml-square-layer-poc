@@ -1,14 +1,12 @@
 import torch.nn as nn
 
-from generate_data import VARIABLE_COUNT
-
 class BaseModel(nn.Module):
 
-    def __init__(self):
+    def __init__(self, variable_count: int):
         super(BaseModel, self).__init__()
 
         self.model = nn.Sequential(
-            nn.Linear(VARIABLE_COUNT, 32),
+            nn.Linear(variable_count, 32),
             nn.Tanh(),
             nn.Linear(32, 32),
             nn.Tanh(),
