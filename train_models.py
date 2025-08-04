@@ -118,3 +118,13 @@ if __name__ == "__main__":
     # print("Training SquareModel...")
     # square_model = SquareModel()
     # train_model(square_model, X, y, X_val, y_val, epochs, batch_size)
+
+    if input("Do you want to save the base model state? ") == "y":
+        model_state_path: str = input("Base model state path: ")
+        model_state_path = (
+            model_state_path
+            if model_state_path != ""
+            else f"./model_states/base_model_state_{variable_count}vars.pt"
+        )
+        torch.save(base_model.state_dict(), model_state_path)
+        print("Saved to " + model_state_path)
