@@ -5,7 +5,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from generate_data import DEFAULT_VARIABLE_COUNT, default_data_path
-from losses.relative_mse_loss import RelativeMSELoss
+from losses import HybridMSELoss
+from losses import RelativeMSELoss
 from models import BaseModel, SquareModel, Model
 from utils import Scheduler
 
@@ -22,6 +23,11 @@ def train_model(
     epochs: int,
     batch_size: int,
 ):
+    for m in model.modules():
+        if isinstance(m, nn.Linear):
+            nn.init.xavier_uniform_(m.weight, gain=1.0)
+            nn.init.zeros_(m.bias)
+
     mse_loss_function: Final = nn.MSELoss()
     rmse_loss_function: Final = RelativeMSELoss()
     training_loss_function: Final = HybridMSELoss(alpha=0.6)
