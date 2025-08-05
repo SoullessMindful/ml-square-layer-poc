@@ -1,6 +1,6 @@
 import json
 import argparse
-from typing import Final
+from typing import Any, Final
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -22,7 +22,7 @@ def train_model(
     y_val: torch.Tensor,
     epochs: int,
     batch_size: int,
-):
+) -> dict[str, Any]:
     for m in model.modules():
         if isinstance(m, nn.Linear):
             nn.init.xavier_uniform_(m.weight, gain=1.0)
@@ -47,6 +47,9 @@ def train_model(
         cache=10,
         patience=20,
     )
+
+    best_validation_loss: float = float("inf")
+    best_model_state: dict[str, Any] = model.state_dict()
 
     for epoch in range(epochs):
         permutation = torch.randperm(X.size(0))
@@ -93,6 +96,9 @@ def train_model(
             validation_loss = training_loss_function(validation_outputs, y_val).item()
             rmse_validation_loss = rmse_loss_function(validation_outputs, y_val).item()
             mse_validation_loss = mse_loss_function(validation_outputs, y_val).item()
+            if validation_loss < best_validation_loss:
+                best_validation_loss = validation_loss
+                best_model_state = model.state_dict()
 
         print(
             f"Epoch {epoch+1}/{epochs}, "
@@ -104,6 +110,8 @@ def train_model(
         if early_stoppping_scheduler.check():
             print("Early stopping")
             break
+
+    return best_model_state
 
 
 if __name__ == "__main__":
@@ -154,10 +162,11 @@ if __name__ == "__main__":
 
     print("Training BaseModel...")
     base_model = BaseModel(variable_count)
+    base_model_best_state = base_model.state_dict()
     try:
-        train_model(base_model, X, y, X_val, y_val, epochs, batch_size)
+        base_model_best_state = train_model(base_model, X, y, X_val, y_val, epochs, batch_size)
     except KeyboardInterrupt:
-        pass 
+        pass
 
     # print("Training SquareModel...")
     # square_model = SquareModel()
@@ -170,5 +179,5 @@ if __name__ == "__main__":
             if model_state_path != ""
             else f"./model_states/base_model_state_{variable_count}vars.pt"
         )
-        torch.save(base_model.state_dict(), model_state_path)
+        torch.save(base_model_best_state, model_state_path)
         print("Saved to " + model_state_path)
