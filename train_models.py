@@ -47,7 +47,6 @@ def train_model(
         cache=10,
         patience=20,
     )
-    nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
     for epoch in range(epochs):
         permutation = torch.randperm(X.size(0))
@@ -66,6 +65,7 @@ def train_model(
             outputs = model(batch_x)
             loss = training_loss_function(outputs, batch_y)
             loss.backward()
+            nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
 
             epoch_loss += loss.item() * batch_x.size(0)
