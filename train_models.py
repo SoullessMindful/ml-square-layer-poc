@@ -30,7 +30,7 @@ def train_model(
 
     mse_loss_function: Final = nn.MSELoss()
     rmse_loss_function: Final = RelativeMSELoss()
-    training_loss_function: Final = HybridMSELoss(alpha=0.6)
+    training_loss_function: Final = HybridMSELoss(alpha=0.1)
     optimizer: Final = optim.Adam(model.parameters(), lr=1e-2, weight_decay=1e-5)
     scheduler: Final = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer,
@@ -40,6 +40,7 @@ def train_model(
     batch_scheduler: Final = Scheduler[float](
         lambda value, values: len(values) > 0 and value - min(values) > -1e-6,
         cache=5,
+        patience=12,
     )
     nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
@@ -76,7 +77,7 @@ def train_model(
 
         scheduler.step(avg_loss)
         batch_scheduler.step(avg_loss)
-        if batch_scheduler.check():
+        if batch_scheduler.check() and batch_size > 64:
             batch_size //= 2
             print(f"Batch size: {batch_size}")
 
