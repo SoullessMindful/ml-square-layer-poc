@@ -42,6 +42,11 @@ def train_model(
         cache=5,
         patience=12,
     )
+    early_stoppping_scheduler: Final = Scheduler[float](
+        lambda value, values: len(values) > 0 and value - min(values) > 0,
+        cache=10,
+        patience=20,
+    )
     nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
 
     for epoch in range(epochs):
@@ -91,6 +96,10 @@ def train_model(
             + f"RMSE TL: {rmse_avg_loss:.6f}, RMSE VL: {rmse_validation_loss:.6f}, "
             + f"MSE TL: {mse_avg_loss:.6f}, MSE VL: {mse_validation_loss:.6f}"
         )
+        early_stoppping_scheduler.step(validation_loss)
+        if early_stoppping_scheduler.check():
+            print("Early stopping")
+            break
 
 
 if __name__ == "__main__":
