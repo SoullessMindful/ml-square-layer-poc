@@ -70,11 +70,13 @@ def train_model(
 
             epoch_loss += loss.item() * batch_x.size(0)
 
-            rmse_loss = rmse_loss_function(outputs, batch_y)
-            rmse_epoch_loss += rmse_loss.item() * batch_x.size(0)
-
-            mse_loss = mse_loss_function(outputs, batch_y)
-            mse_epoch_loss += mse_loss.item() * batch_x.size(0)
+            with torch.no_grad():
+                rmse_epoch_loss += rmse_loss_function(
+                    outputs, batch_y
+                ).item() * batch_x.size(0)
+                mse_epoch_loss += mse_loss_function(
+                    outputs, batch_y
+                ).item() * batch_x.size(0)
 
         avg_loss = epoch_loss / X.size(0)
         rmse_avg_loss = rmse_epoch_loss / X.size(0)
@@ -86,10 +88,12 @@ def train_model(
             batch_size //= 2
             print(f"Batch size: {batch_size}")
 
-        validation_outputs = model(X_val)
-        validation_loss = training_loss_function(validation_outputs, y_val).item()
-        rmse_validation_loss = rmse_loss_function(validation_outputs, y_val).item()
-        mse_validation_loss = mse_loss_function(validation_outputs, y_val).item()
+        with torch.no_grad():
+            validation_outputs = model(X_val)
+            validation_loss = training_loss_function(validation_outputs, y_val).item()
+            rmse_validation_loss = rmse_loss_function(validation_outputs, y_val).item()
+            mse_validation_loss = mse_loss_function(validation_outputs, y_val).item()
+
         print(
             f"Epoch {epoch+1}/{epochs}, "
             + f"TL: {avg_loss:.6f}, VL: {validation_loss:.6f}, "
