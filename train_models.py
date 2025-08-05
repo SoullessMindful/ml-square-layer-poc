@@ -13,8 +13,18 @@ DEFAULT_EPOCHS: Final = 1000
 DEFAULT_BATCH_SIZE: Final = 32
 
 
-def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
-    loss_function: Final = RelativeMSELoss()
+def train_model(
+    model: Model,
+    X: torch.Tensor,
+    y: torch.Tensor,
+    X_val: torch.Tensor,
+    y_val: torch.Tensor,
+    epochs: int,
+    batch_size: int,
+):
+    mse_loss_function: Final = nn.MSELoss()
+    rmse_loss_function: Final = RelativeMSELoss()
+    training_loss_function: Final = HybridMSELoss(alpha=0.6)
     optimizer: Final = optim.Adam(model.parameters(), lr=1e-2, weight_decay=1e-5)
     scheduler: Final = optim.lr_scheduler.ReduceLROnPlateau(
         optimizer,
@@ -30,6 +40,8 @@ def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
     for epoch in range(epochs):
         permutation = torch.randperm(X.size(0))
         epoch_loss = 0.0
+        rmse_epoch_loss = 0.0
+        mse_epoch_loss = 0.0
 
         for i in range(0, X.size(0), batch_size):
             indices = permutation[i : i + batch_size]
@@ -40,13 +52,22 @@ def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
 
             optimizer.zero_grad()
             outputs = model(batch_x)
-            loss = loss_function(outputs, batch_y)
+            loss = training_loss_function(outputs, batch_y)
             loss.backward()
             optimizer.step()
 
             epoch_loss += loss.item() * batch_x.size(0)
 
+            rmse_loss = rmse_loss_function(outputs, batch_y)
+            rmse_epoch_loss += rmse_loss.item() * batch_x.size(0)
+
+            mse_loss = mse_loss_function(outputs, batch_y)
+            mse_epoch_loss += mse_loss.item() * batch_x.size(0)
+
         avg_loss = epoch_loss / X.size(0)
+        rmse_avg_loss = rmse_epoch_loss / X.size(0)
+        mse_avg_loss = mse_epoch_loss / X.size(0)
+
         scheduler.step(avg_loss)
         batch_scheduler.step(avg_loss)
         if batch_scheduler.check():
@@ -54,9 +75,14 @@ def train_model(model: Model, X, y, X_val, y_val, epochs: int, batch_size: int):
             print(f"Batch size: {batch_size}")
 
         validation_outputs = model(X_val)
-        validation_loss = loss_function(validation_outputs, y_val).item()
+        validation_loss = training_loss_function(validation_outputs, y_val).item()
+        rmse_validation_loss = rmse_loss_function(validation_outputs, y_val).item()
+        mse_validation_loss = mse_loss_function(validation_outputs, y_val).item()
         print(
-            f"Epoch {epoch+1}/{epochs}, Loss: {avg_loss:.6f}, Validation Loss: {validation_loss:.6f}"
+            f"Epoch {epoch+1}/{epochs}, "
+            + f"TL: {avg_loss:.6f}, VL: {validation_loss:.6f}, "
+            + f"RMSE TL: {rmse_avg_loss:.6f}, RMSE VL: {rmse_validation_loss:.6f}, "
+            + f"MSE TL: {mse_avg_loss:.6f}, MSE VL: {mse_validation_loss:.6f}"
         )
 
 
@@ -85,9 +111,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     variable_count: Final[int] = args.variable_count
     data_path: Final[str] = (
-        args.data_path
-        if args.data_path != ""
-        else default_data_path(variable_count)
+        args.data_path if args.data_path != "" else default_data_path(variable_count)
     )
     batch_size: Final[int] = args.batch_size
     epochs: Final[int] = args.epochs
