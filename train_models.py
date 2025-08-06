@@ -52,6 +52,16 @@ def train_model(
     best_model_state: dict[str, Any] = model.state_dict()
 
     for epoch in range(epochs):
+        if epoch == 100:
+            print("Alpha: 0.2")
+            training_loss_function.alpha = 0.2
+        if epoch == 200:
+            print("Alpha: 0.3")
+            training_loss_function.alpha = 0.3
+        if epoch == 300:
+            print("Alpha: 0.4")
+            training_loss_function.alpha = 0.4
+
         permutation = torch.randperm(X.size(0))
         epoch_loss = 0.0
         rmse_epoch_loss = 0.0
@@ -106,7 +116,7 @@ def train_model(
             + f"RMSE TL: {rmse_avg_loss:.6f}, RMSE VL: {rmse_validation_loss:.6f}, "
             + f"MSE TL: {mse_avg_loss:.6f}, MSE VL: {mse_validation_loss:.6f}"
         )
-        early_stoppping_scheduler.step(validation_loss)
+        early_stoppping_scheduler.step(rmse_validation_loss)
         if early_stoppping_scheduler.check():
             print("Early stopping")
             break
