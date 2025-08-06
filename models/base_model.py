@@ -1,3 +1,4 @@
+import torch as torch
 import torch.nn as nn
 
 
@@ -10,9 +11,18 @@ class BaseModel(nn.Module):
         # activation = nn.SiLU
         # activation = nn.ReLU
 
-        self.model = nn.Sequential(
+        self.seq1 = nn.Sequential(
             nn.Linear(variable_count, 32),
             activation(),
+            nn.Linear(32, 32),
+            activation(),
+            nn.Linear(32, 32),
+            activation(),
+        )
+        
+        self.skip = nn.Linear(variable_count, 32)
+        
+        self.seq2 = nn.Sequential(
             nn.Linear(32, 32),
             activation(),
             nn.Linear(32, 32),
@@ -20,5 +30,5 @@ class BaseModel(nn.Module):
             nn.Linear(32, 1),
         )
 
-    def forward(self, x):
-        return self.model(x)
+    def forward(self, x: torch.Tensor):
+        return self.seq2(self.seq1(x) + self.skip(x))
