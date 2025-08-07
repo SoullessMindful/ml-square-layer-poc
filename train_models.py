@@ -106,8 +106,8 @@ def train_model(
             validation_loss = training_loss_function(validation_outputs, y_val).item()
             rmse_validation_loss = rmse_loss_function(validation_outputs, y_val).item()
             mse_validation_loss = mse_loss_function(validation_outputs, y_val).item()
-            if validation_loss < best_validation_loss:
-                best_validation_loss = validation_loss
+            if rmse_validation_loss < best_validation_loss:
+                best_validation_loss = rmse_validation_loss
                 best_model_state = model.state_dict()
 
         print(
