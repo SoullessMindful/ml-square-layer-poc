@@ -8,7 +8,7 @@ from generate_data import DEFAULT_VARIABLE_COUNT, default_data_path
 from losses import HybridMSELoss
 from losses import RelativeMSELoss
 from models import BaseModel, SquareModel, Model
-from utils import Scheduler
+from utils import Scheduler, unit_tests
 
 DEFAULT_EPOCHS: Final = 1000
 DEFAULT_BATCH_SIZE: Final = 32
@@ -183,6 +183,8 @@ if __name__ == "__main__":
         pass
 
     model.load_state_dict(model_best_state)
+    
+    unit_tests(model, variable_count)
 
     if input("Do you want to save the base model state? ") == "y":
         model_state_path: str = input("Base model state path: ")
