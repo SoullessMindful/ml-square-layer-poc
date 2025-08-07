@@ -170,24 +170,26 @@ if __name__ == "__main__":
     print(f"Batch size: {batch_size}")
     print(f"Epochs: {epochs}")
 
-    print("Training BaseModel...")
-    base_model = BaseModel(variable_count)
-    base_model_best_state = base_model.state_dict()
+    # print("Training BaseModel...")
+    # model = BaseModel(variable_count)
+
+    print("Training SquareModel...")
+    model = SquareModel(variable_count)
+
+    model_best_state = model.state_dict()
     try:
-        base_model_best_state = train_model(base_model, X, y, X_val, y_val, epochs, batch_size)
+        model_best_state = train_model(model, X, y, X_val, y_val, epochs, batch_size)
     except KeyboardInterrupt:
         pass
 
-    # print("Training SquareModel...")
-    # square_model = SquareModel()
-    # train_model(square_model, X, y, X_val, y_val, epochs, batch_size)
+    model.load_state_dict(model_best_state)
 
     if input("Do you want to save the base model state? ") == "y":
         model_state_path: str = input("Base model state path: ")
         model_state_path = (
             model_state_path
             if model_state_path != ""
-            else f"./model_states/base_model_state_{variable_count}vars.pt"
+            else f"./model_states/model_state_{variable_count}vars.pt"
         )
-        torch.save(base_model_best_state, model_state_path)
+        torch.save(model_best_state, model_state_path)
         print("Saved to " + model_state_path)
