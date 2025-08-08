@@ -36,6 +36,7 @@ def train_model(
         optimizer,
         factor=0.5,
         patience=7,
+        min_lr=1e-6,
     )
     batch_scheduler: Final = Scheduler[float](
         lambda value, values: len(values) > 0 and value - min(values) > -1e-6,
